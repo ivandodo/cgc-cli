@@ -1,4 +1,4 @@
-<h1>CLC CLI</h1>
+<h1>CGC CLI</h1>
 <h2>General</h2>
 
 App requirements are described [here](Homework%20Java%20Developer%20role.pdf).
