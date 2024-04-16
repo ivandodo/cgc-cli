@@ -1,0 +1,1 @@
+java -Dspring.aot.enabled=true -agentlib:native-image-agent=config-output-dir=./config -jar target/cgc-cli-0.0.1-SNAPSHOT.jar

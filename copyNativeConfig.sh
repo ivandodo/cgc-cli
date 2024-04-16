@@ -1,0 +1,1 @@
+cp -a ./config/. ./src/main/resources/META-INF/native-image/
