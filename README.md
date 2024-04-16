@@ -25,8 +25,10 @@ Building native app:
 ```
 After building native app executable called `cgc-cli` can be found in `target` folder.
 <h2 name="requirements">Requirements</h2>
-For this app to run properly 2 enviroment variables must be set:
-1. `SB_AUTH_TOKEN` - Token acquired from [Cancer Genomics Cloud Platform](https://cgc.sbgenomics.com/developer/token)
-2. `SB_API_ENDPOINT` - Endpoint URI that can be found on the same page
+For this app to run properly 2 enviroment variables must be set:  
+
+1. `SB_AUTH_TOKEN` - Token acquired from [Cancer Genomics Cloud Platform](https://cgc.sbgenomics.com/developer/token)  
+
+2. `SB_API_ENDPOINT` - Endpoint URI that can be found on the same page  
 
 If these variables are not set in the environment application will warn you about that on each attempt to interact with the service.
