@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MethodMapping {
-    SbClientService sbClientService;
-    ProjectsCommands projectsCommands;
-    FilesCommands filesCommands;
+    final SbClientService sbClientService;
+    final ProjectsCommands projectsCommands;
+    final FilesCommands filesCommands;
 
     @Autowired
     public MethodMapping(SbClientService sbClientService,

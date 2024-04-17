@@ -134,6 +134,14 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.homework.velsera.cgccli.velsera.cgccli.commands.CliCommand",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"collectDataWithCounting","parameterTypes":["java.util.Iterator","int","java.util.function.Function"] }, {"name":"getShellTable","parameterTypes":["java.lang.String[][]","boolean","boolean"] }, {"name":"resetLastTerminalLine","parameterTypes":[] }]
+},
+{
   "name":"com.homework.velsera.cgccli.velsera.cgccli.commands.FilesCommands",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -159,10 +167,8 @@
 },
 {
   "name":"com.homework.velsera.cgccli.velsera.cgccli.services.SbClientService",
-  "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"clientValidityCheck","parameterTypes":[] }, {"name":"initClient","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":["org.springframework.core.env.Environment"] }, {"name":"initClient","parameterTypes":[] }]
 },
 {
   "name":"com.rometools.rome.feed.WireFeed"
@@ -253,8 +259,7 @@
 },
 {
   "name":"jakarta.annotation.PostConstruct",
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"value","parameterTypes":[] }]
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"jakarta.inject.Provider"
@@ -1086,6 +1091,9 @@
   "methods":[{"name":"clearCache","parameterTypes":[] }]
 },
 {
+  "name":"org.springframework.boot.logging.LogLevelEditor"
+},
+{
   "name":"org.springframework.boot.logging.java.JavaLoggingSystem$Factory",
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
@@ -1324,7 +1332,21 @@
   "name":"org.springframework.shell.boot.SpringShellProperties",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[{"name":"getCommand","parameterTypes":[] }, {"name":"setCommand","parameterTypes":["org.springframework.shell.boot.SpringShellProperties$Command"] }]
+},
+{
+  "name":"org.springframework.shell.boot.SpringShellProperties$Command",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"getStacktrace","parameterTypes":[] }, {"name":"setStacktrace","parameterTypes":["org.springframework.shell.boot.SpringShellProperties$StacktraceCommand"] }]
+},
+{
+  "name":"org.springframework.shell.boot.SpringShellProperties$StacktraceCommand",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"setEnabled","parameterTypes":["boolean"] }]
 },
 {
   "name":"org.springframework.shell.boot.StandardAPIAutoConfiguration",
@@ -1395,10 +1417,6 @@
 },
 {
   "name":"org.springframework.shell.standard.commands.Script",
-  "queryAllDeclaredMethods":true
-},
-{
-  "name":"org.springframework.shell.standard.commands.Stacktrace",
   "queryAllDeclaredMethods":true
 },
 {

@@ -6,32 +6,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.homework.velsera.cgccli.velsera.cgccli.services.SbClientService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.TableBuilder;
 import org.springframework.stereotype.Component;
-
-import com.homework.velsera.cgccli.velsera.cgccli.utils.TerminalUtils;
 import com.sevenbridges.apiclient.file.File;
 import com.sevenbridges.apiclient.file.FileList;
 
 @Component
-public class FilesCommands {
+public class FilesCommands implements CliCommand {
 
-    SbClientService sbClientService;
+    final SbClientService sbClientService;
 
     @Autowired
     public FilesCommands(SbClientService sbClientService){
@@ -39,40 +28,28 @@ public class FilesCommands {
     }
 
     public String listFiles(String project) {
-
-        List<List<String>> filesModelList = new ArrayList<>();
-        FileList cgcFileList = sbClientService.getClient().getProjectById(project).getFiles();
-        int total = cgcFileList.getSize();
-        AtomicInteger counter = new AtomicInteger(0);
-
-        cgcFileList.iterator().forEachRemaining(e -> {
-            TerminalUtils.resetLastTerminalLine();
-            int cnt = counter.incrementAndGet() ;
-            System.out.print("Loading files..." + cnt * 100 / total + " %");
-            filesModelList.add(Arrays.asList(
-                    e.getId(),
-                    e.getName(),
-                    e.getCreatedOn().toString(),
-                    e.getModifiedOn().toString(),
-                    FileUtils.byteCountToDisplaySize(e.getSize())));
-        });
-        TerminalUtils.resetLastTerminalLine();
+        String[][] filesModel = collectFilesModel(project);
+        return getShellTable(filesModel, true, false);
+    }
+    
+    private String[][] collectFilesModel(String projectId){
+        FileList cgcFileList = sbClientService.getClient().getProjectById(projectId).getFiles();
+        Function<File, List<String>> rowCollector = f -> Arrays.asList(f.getId(),
+                f.getName(),
+                f.getCreatedOn().toString(),
+                f.getModifiedOn().toString(),
+                FileUtils.byteCountToDisplaySize(f.getSize()));
+        List<List<String>> modelList = collectDataWithCounting(cgcFileList.iterator(), cgcFileList.getSize(), rowCollector);
 
         List<String> header = Arrays.asList("ID", "File name", "Created on", "Modified on", "File size");
-        filesModelList.add(0, header);
+        modelList.add(0, header);
 
-        String[][] filesModel = filesModelList.stream()
-            .map(l -> l.stream().toArray(String[]::new))
-            .toArray(String[][]::new);
-        ArrayTableModel model = new ArrayTableModel(filesModel);
-        TableBuilder tableBuilder = new TableBuilder(model);
-        tableBuilder.addFullBorder(BorderStyle.fancy_light);
-        tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_double);
-
-        return tableBuilder.build().render(160);
+        return modelList.stream()
+                .map(l -> l.toArray(String[]::new))
+                .toArray(String[][]::new);
     }
 
-    public String fileStat(String file) throws InterruptedException {
+    public String fileStat(String file) {
         Map<String, String> stats = new LinkedHashMap<>();
         File cgcFile = sbClientService.getClient().getFileById(file);
         stats.put("ID", cgcFile.getId());
@@ -83,34 +60,24 @@ public class FilesCommands {
         stats.put("Created on ", cgcFile.getCreatedOn().toString());
         stats.put("Modified on", cgcFile.getModifiedOn().toString());
 
-        //get storage data
+        //collect storage data into subtable
         Map<String, String> storageMap = new LinkedHashMap<>();
         storageMap.put("Type", cgcFile.getFileStorage().getType().toString());
         storageMap.put("Volume", cgcFile.getFileStorage().getVolume());
         storageMap.put("Location", cgcFile.getFileStorage().getLocation());
         String[][] storage = storageMap.entrySet().stream().map(e -> new String[]{e.getKey(), e.getValue()}).toArray(String[][]::new);
-        ArrayTableModel storageModel = new ArrayTableModel(storage);
-        TableBuilder storageTableBuilder = new TableBuilder(storageModel.transpose());
-        storageTableBuilder.addInnerBorder(BorderStyle.fancy_light);
-        stats.put("Storage", storageTableBuilder.build().render(60));
+        stats.put("Storage", getShellTable(storage, false, true));
 
         stats.put("Origin", cgcFile.getFileOrigin() != null ? "Dataset: " + cgcFile.getFileOrigin().getTask() : "");
-        stats.put("Tags", cgcFile.getTags().stream().map(e -> e).collect(Collectors.joining(", ")));
+        stats.put("Tags", String.join(", ", cgcFile.getTags()));
 
         //collect metadata into subtable
         Map<String, String> metadataMap = cgcFile.getMetadata();
         String[][] metadata = metadataMap.entrySet().stream().map(e -> new String[]{e.getKey(), e.getValue()}).toArray(String[][]::new);
-        ArrayTableModel metadataModel = new ArrayTableModel(metadata);
-        TableBuilder metadataTableBuilder = new TableBuilder(metadataModel);
-        metadataTableBuilder.addInnerBorder(BorderStyle.fancy_light);
-        stats.put("Metadata", metadataTableBuilder.build().render(80));
+        stats.put("Metadata", getShellTable(metadata, false, false));
 
         String[][] list = stats.entrySet().stream().map(e -> new String[]{e.getKey(), e.getValue()}).toArray(String[][]::new);
-        ArrayTableModel model = new ArrayTableModel(list);
-        TableBuilder tableBuilder = new TableBuilder(model);
-        tableBuilder.addFullBorder(BorderStyle.fancy_light);
-        tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_double);
-        return tableBuilder.build().render(160);
+        return getShellTable(list, true, false);
     }
 
     public String updateFile(String[] file) {
@@ -163,10 +130,10 @@ public class FilesCommands {
                 long chunkSize = 1024*1024; 
                 do {
                     transferred += fos.getChannel().transferFrom(rbc, transferred, chunkSize);
-                    TerminalUtils.resetLastTerminalLine();
+                    resetLastTerminalLine();
                     System.out.print(transferred * 100 / size + " %");
                 } while (transferred < size);
-                TerminalUtils.resetLastTerminalLine();
+                resetLastTerminalLine();
             } catch (IOException e) {
                 return "ERROR: Cannot access download location: " + destFile.getAbsolutePath();
             }

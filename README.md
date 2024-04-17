@@ -10,7 +10,7 @@ described in [Requirements](#requirements). There are several reasons for that:
 confusion if the options are intended for SpringBoot or Shell app. 
 More about it [here](https://github.com/spring-projects/spring-shell/discussions/613).
 * From UX perspective it would be cumbersome for user to enter token for each call. This way it is set once and reused seamlessly.
-* Seven Bridges Client library docs recommend storing this piece of information in sytem variables.
+* Seven Bridges Client library docs recommend storing this piece of information in system variables.
 
 App is created in Spring Boot, using Spring Shell project, GraalVM Native Image Support and Seven Bridges Client library.
 It can be built with any Java SDK, but in order to build native app GraalVM SDK must be used.
@@ -25,7 +25,7 @@ Building native app:
 ```
 After building native app executable called `cgc-cli` can be found in `target` folder.
 <h2 name="requirements">Requirements</h2>
-For this app to run properly 2 enviroment variables must be set:  
+For this app to run properly 2 environment variables must be set:  
 
 1. `SB_AUTH_TOKEN` - Token acquired from [Cancer Genomics Cloud Platform](https://cgc.sbgenomics.com/developer/token)  
 

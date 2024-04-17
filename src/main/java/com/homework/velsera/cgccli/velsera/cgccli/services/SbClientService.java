@@ -14,11 +14,14 @@ import jakarta.annotation.PostConstruct;
 
 @Component
 public class SbClientService {
-    
+
+    private final Environment env;
     private Client sbClient;
 
     @Autowired
-    Environment env;
+    public SbClientService(Environment environment){
+        this.env = environment;
+    }
 
     public Client getClient(){
         return sbClient;

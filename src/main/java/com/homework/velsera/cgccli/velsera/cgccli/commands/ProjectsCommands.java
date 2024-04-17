@@ -1,24 +1,21 @@
 package com.homework.velsera.cgccli.velsera.cgccli.commands;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import com.homework.velsera.cgccli.velsera.cgccli.services.SbClientService;
+import com.sevenbridges.apiclient.project.Project;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.TableBuilder;
 import org.springframework.stereotype.Component;
 
-import com.homework.velsera.cgccli.velsera.cgccli.utils.TerminalUtils;
+
 import com.sevenbridges.apiclient.project.ProjectList;
 
 @Component
-public class ProjectsCommands {
+public class ProjectsCommands implements CliCommand {
 
-    SbClientService sbClientService;
+    final SbClientService sbClientService;
 
     @Autowired
     public ProjectsCommands(SbClientService sbClientService){
@@ -26,33 +23,23 @@ public class ProjectsCommands {
     }
     
     public String listProjects() {
-        List<List<String>> projectsList = new ArrayList<>();
-        ProjectList projectList = sbClientService.getClient().getProjects();
-        int total = projectList.getSize();
-        AtomicInteger counter = new AtomicInteger(0);
+        String[][] projectsModel = collectProjectsModel();
+        return getShellTable(projectsModel, true, false);
+    }
 
-        projectList.iterator().forEachRemaining(e -> {
-            TerminalUtils.resetLastTerminalLine();
-            int cnt = counter.incrementAndGet() ;
-            System.out.print("Loading projects..." + cnt * 100 / total + " %");
-            projectsList.add(Arrays.asList(
-                    e.getId(),
-                    e.getName(),
-                    e.getHref()));
-        });
-        TerminalUtils.resetLastTerminalLine();
+    private String[][] collectProjectsModel(){
+        ProjectList projectList = sbClientService.getClient().getProjects();
+        Function<Project, List<String>> rowCollector = p -> Arrays.asList(
+                p.getId(),
+                p.getName(),
+                p.getHref());
+        List<List<String>> modelList = collectDataWithCounting(projectList.iterator(), projectList.getSize(), rowCollector);
 
         List<String> header = Arrays.asList("ID", "Project name", "Href");
-        projectsList.add(0, header);
+        modelList.add(0, header);
 
-        String[][] data = projectsList.stream()
-            .map(l -> l.stream().toArray(String[]::new))
-            .toArray(String[][]::new);
-        ArrayTableModel model = new ArrayTableModel(data);
-        TableBuilder tableBuilder = new TableBuilder(model);
-        tableBuilder.addFullBorder(BorderStyle.fancy_light);
-        tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_double);
-
-        return tableBuilder.build().render(80);
+        return modelList.stream()
+                .map(l -> l.toArray(String[]::new))
+                .toArray(String[][]::new);
     }
 }

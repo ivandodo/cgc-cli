@@ -8,7 +8,6 @@ import com.homework.velsera.cgccli.velsera.cgccli.configuration.MethodMapping;
 import com.homework.velsera.cgccli.velsera.cgccli.services.SbClientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.shell.test.ShellAssertions;
 import org.springframework.shell.test.ShellTestClient;
 import org.springframework.shell.test.autoconfigure.ShellTest;
